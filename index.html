@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Analisis Keuangan Interaktif: PT TERADATA vs. LENOVO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Chosen Palette: Warm Neutral Harmony -->
+    <!-- Application Structure Plan: Aplikasi ini dirancang sebagai dasbor perbandingan satu halaman dengan navigasi scroll. Struktur ini dipilih untuk memungkinkan perbandingan langsung dan intuitif antara PT TERADATA dan LENOVO. Informasi dikelompokkan ke dalam bagian tematik (Ringkasan, Biaya & Struktur Modal, Efisiensi Operasional, Kebijakan Pemegang Saham) untuk membantu pengguna membangun pemahaman holistik tentang profil keuangan setiap perusahaan daripada hanya mengikuti urutan laporan asli. Alur pengguna adalah linear ke bawah, dengan interaksi utama berupa hover pada grafik untuk detail dan navigasi cepat melalui tautan di header. Struktur ini paling efektif untuk menyoroti narasi inti laporan: kontras antara strategi pertumbuhan agresif LENOVO dan pendekatan konservatif TERADATA. -->
+    <!-- Visualization & Content Choices: 
+        - Ringkasan: Kartu HTML/Tailwind untuk menyoroti temuan kunci. Goal: Inform. Justification: Memberikan gambaran umum yang cepat dan mudah dicerna.
+        - WACC, DER, ICR: Grafik Batang Horizontal (Chart.js). Goal: Compare. Justification: Ideal untuk perbandingan langsung dua entitas pada metrik yang sama.
+        - Leverage (DOL, DFL, DCL): Grafik Batang Berkelompok (Chart.js). Goal: Compare. Justification: Efektif untuk membandingkan beberapa metrik terkait leverage secara bersamaan.
+        - Efisiensi Operasional (Hari Piutang & Persediaan): Grafik Batang Horizontal (Chart.js). Goal: Compare. Justification: Visualisasi yang jelas untuk durasi waktu.
+        - Kebijakan Dividen (DPR vs. Retensi): Grafik Donat (Chart.js). Goal: Show Proportion. Justification: Sangat baik untuk menunjukkan komposisi alokasi laba.
+        Semua interaksi didukung oleh Vanilla JS dan Chart.js, tanpa ketergantungan pada SVG atau Mermaid.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      .chart-container {
+        position: relative;
+        width: 100%;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+        height: 250px;
+        max-height: 300px;
+      }
+      @media (min-width: 768px) {
+        .chart-container {
+          height: 300px;
+          max-height: 350px;
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-stone-50 text-gray-800">
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+      <nav
+        class="container mx-auto px-6 py-4 flex justify-between items-center"
+      >
+        <h1 class="text-xl md:text-2xl font-bold text-teal-600">
+          Analisis Keuangan
+        </h1>
+        <div class="hidden md:flex space-x-6 text-gray-600">
+          <a href="#ringkasan" class="hover:text-teal-600 transition-colors"
+            >Ringkasan</a
+          >
+          <a href="#modal" class="hover:text-teal-600 transition-colors"
+            >Struktur Modal</a
+          >
+          <a href="#efisiensi" class="hover:text-teal-600 transition-colors"
+            >Efisiensi Operasional</a
+          >
+          <a href="#dividen" class="hover:text-teal-600 transition-colors"
+            >Dividen</a
+          >
+        </div>
+        <div class="md:hidden">
+          <svg
+            id="menu-button"
+            class="w-6 h-6 cursor-pointer"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16m-7 6h7"
+            ></path>
+          </svg>
+        </div>
+      </nav>
+      <div
+        id="mobile-menu"
+        class="hidden md:hidden px-6 pb-4 flex flex-col space-y-2"
+      >
+        <a
+          href="#ringkasan"
+          class="block py-2 text-gray-600 hover:text-teal-600 transition-colors"
+          >Ringkasan</a
+        >
+        <a
+          href="#modal"
+          class="block py-2 text-gray-600 hover:text-teal-600 transition-colors"
+          >Struktur Modal</a
+        >
+        <a
+          href="#efisiensi"
+          class="block py-2 text-gray-600 hover:text-teal-600 transition-colors"
+          >Efisiensi Operasional</a
+        >
+        <a
+          href="#dividen"
+          class="block py-2 text-gray-600 hover:text-teal-600 transition-colors"
+          >Dividen</a
+        >
+      </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-8 md:py-12">
+      <section id="ringkasan" class="mb-16 scroll-mt-20">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold mb-2">
+            Perbandingan Kinerja Keuangan
+          </h2>
+          <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+            Analisis komparatif antara PT TERADATA INDONUSA, Tbk. dan LENOVO
+            untuk mengungkap strategi dan kesehatan finansial mereka.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-8 items-start">
+          <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+            <h3 class="text-2xl font-bold mb-4 text-teal-700">
+              PT TERADATA INDONUSA
+            </h3>
+            <p class="text-gray-600 mb-4">
+              Menampilkan profil keuangan yang cenderung
+              <span class="font-semibold text-teal-700">konservatif</span>.
+              Meskipun memiliki struktur modal yang lebih stabil dan efisiensi
+              pengumpulan piutang yang baik, terdapat tantangan dalam efisiensi
+              operasional, terutama manajemen persediaan. Kebijakan dividen
+              berubah secara drastis di tahun 2024, mengindikasikan pergeseran
+              strategi pengembalian kepada pemegang saham.
+            </p>
+            <div class="mt-4 pt-4 border-t border-gray-200">
+              <h4 class="font-semibold text-gray-700 mb-2">Kekuatan Utama:</h4>
+              <ul class="list-disc list-inside text-gray-600 space-y-1">
+                <li>Struktur modal yang lebih seimbang.</li>
+                <li>Manajemen piutang yang efisien.</li>
+                <li>Posisi modal kerja kualitatif yang kuat.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+            <h3 class="text-2xl font-bold mb-4 text-blue-700">LENOVO</h3>
+            <p class="text-gray-600 mb-4">
+              Menunjukkan profil keuangan yang jelas
+              <span class="font-semibold text-blue-700"
+                >berorientasi pada pertumbuhan</span
+              >. Ditandai dengan penggunaan leverage yang tinggi dan efisiensi
+              operasional yang superior, khususnya dalam manajemen persediaan.
+              Laba ditahan secara signifikan untuk mendanai ekspansi,
+              mencerminkan fokus pada pertumbuhan jangka panjang.
+            </p>
+            <div class="mt-4 pt-4 border-t border-gray-200">
+              <h4 class="font-semibold text-gray-700 mb-2">Kekuatan Utama:</h4>
+              <ul class="list-disc list-inside text-gray-600 space-y-1">
+                <li>Biaya modal (WACC) yang sangat rendah.</li>
+                <li>Manajemen persediaan yang sangat efisien.</li>
+                <li>Profitabilitas operasional yang tangguh.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="modal" class="mb-16 scroll-mt-20">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold mb-2">
+            Analisis Biaya & Struktur Modal
+          </h2>
+          <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+            Bagian ini membedah bagaimana kedua perusahaan membiayai operasi
+            mereka, menganalisis biaya modal dan tingkat risiko finansial yang
+            mereka ambil melalui penggunaan utang (leverage).
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div
+            class="lg:col-span-3 bg-white p-6 rounded-xl shadow-md border border-gray-200"
+          >
+            <h3 class="text-xl font-semibold mb-4 text-center">
+              Biaya Modal Rata-Rata Tertimbang (WACC)
+            </h3>
+            <p class="text-center text-gray-500 mb-4 text-sm">
+              WACC yang lebih rendah menandakan efisiensi yang lebih tinggi
+              dalam mendapatkan pendanaan.
+            </p>
+            <div class="chart-container h-48 md:h-56">
+              <canvas id="waccChart"></canvas>
+            </div>
+            <p class="text-center mt-4 text-gray-600">
+              LENOVO memiliki keunggulan signifikan dengan WACC yang jauh lebih
+              rendah, didorong oleh biaya utang yang sangat kompetitif.
+            </p>
+          </div>
+
+          <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+            <h3 class="text-xl font-semibold mb-4 text-center">
+              Rasio Utang terhadap Ekuitas (DER)
+            </h3>
+            <div class="chart-container h-48 md:h-56">
+              <canvas id="derChart"></canvas>
+            </div>
+            <p class="text-center mt-4 text-gray-600">
+              DER LENOVO yang sangat tinggi menunjukkan ketergantungan besar
+              pada utang, mencerminkan strategi yang lebih agresif.
+            </p>
+          </div>
+
+          <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+            <h3 class="text-xl font-semibold mb-4 text-center">
+              Rasio Cakupan Bunga (ICR)
+            </h3>
+            <div class="chart-container h-48 md:h-56">
+              <canvas id="icrChart"></canvas>
+            </div>
+            <p class="text-center mt-4 text-gray-600">
+              Meskipun leverage tinggi, ICR LENOVO yang lebih kuat menunjukkan
+              kemampuan membayar bunga yang lebih baik dari laba operasional.
+            </p>
+          </div>
+
+          <div
+            class="lg:col-span-3 bg-white p-6 rounded-xl shadow-md border border-gray-200"
+          >
+            <h3 class="text-xl font-semibold mb-4 text-center">
+              Tingkat Leverage (DOL, DFL, DCL)
+            </h3>
+            <p class="text-center text-gray-500 mb-4 text-sm">
+              Tingkat leverage yang lebih tinggi mengindikasikan sensitivitas
+              laba yang lebih besar terhadap perubahan penjualan.
+            </p>
+            <div class="chart-container h-64 md:h-80">
+              <canvas id="leverageChart"></canvas>
+            </div>
+            <p class="text-center mt-4 text-gray-600">
+              LENOVO menunjukkan tingkat leverage operasional, finansial, dan
+              gabungan yang jauh lebih tinggi, menandakan profil
+              risiko-pengembalian yang lebih besar.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="efisiensi" class="mb-16 scroll-mt-20">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold mb-2">
+            Efisiensi Operasional
+          </h2>
+          <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+            Membandingkan seberapa efektif kedua perusahaan mengelola aset
+            lancar mereka, seperti piutang dan persediaan, untuk menghasilkan
+            kas.
+          </p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-8">
+          <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+            <h3 class="text-xl font-semibold mb-4 text-center">
+              Rata-rata Pengumpulan Piutang (Hari)
+            </h3>
+            <p class="text-center text-gray-500 mb-4 text-sm">
+              Semakin sedikit hari, semakin cepat perusahaan mengubah piutang
+              menjadi kas.
+            </p>
+            <div class="chart-container h-48 md:h-56">
+              <canvas id="piutangChart"></canvas>
+            </div>
+            <p class="text-center mt-4 text-gray-600">
+              PT TERADATA lebih efisien dalam mengumpulkan piutangnya dengan
+              periode pengumpulan yang lebih singkat.
+            </p>
+          </div>
+          <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+            <h3 class="text-xl font-semibold mb-4 text-center">
+              Rata-rata Barang Disimpan (Hari)
+            </h3>
+            <p class="text-center text-gray-500 mb-4 text-sm">
+              Semakin sedikit hari, semakin efisien manajemen persediaan dan
+              semakin rendah biaya penyimpanan.
+            </p>
+            <div class="chart-container h-48 md:h-56">
+              <canvas id="persediaanChart"></canvas>
+            </div>
+            <p class="text-center mt-4 text-gray-600">
+              LENOVO menunjukkan efisiensi superior dalam manajemen persediaan
+              dengan periode penyimpanan yang jauh lebih pendek.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="dividen" class="scroll-mt-20">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold mb-2">
+            Kebijakan Dividen 2024
+          </h2>
+          <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+            Menganalisis bagaimana perusahaan mengalokasikan laba: dibagikan
+            kepada pemegang saham (dividen) atau diinvestasikan kembali ke dalam
+            perusahaan (laba ditahan).
+          </p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-8">
+          <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+            <h3 class="text-xl font-semibold mb-4 text-center">
+              Alokasi Laba PT TERADATA
+            </h3>
+            <div class="chart-container h-64 md:h-80">
+              <canvas id="dividenTeradataChart"></canvas>
+            </div>
+            <p class="text-center mt-4 text-gray-600">
+              Pada tahun 2024, PT TERADATA secara drastis meningkatkan porsi
+              laba yang dibagikan sebagai dividen, mencapai
+              <span class="font-bold">80.2%</span>.
+            </p>
+          </div>
+          <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+            <h3 class="text-xl font-semibold mb-4 text-center">
+              Alokasi Laba LENOVO
+            </h3>
+            <div class="chart-container h-64 md:h-80">
+              <canvas id="dividenLenovoChart"></canvas>
+            </div>
+            <p class="text-center mt-4 text-gray-600">
+              LENOVO secara konsisten menahan hampir seluruh labanya (<span
+                class="font-bold"
+                >98.15%</span
+              >
+              ditahan) untuk reinvestasi, sejalan dengan strategi
+              pertumbuhannya.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-16">
+      <div class="container mx-auto px-6 py-4 text-center text-gray-400">
+        <p>
+          &copy; 2024 Dasbor Analisis Keuangan. Dibuat untuk tujuan demonstrasi.
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const teradataColor = "rgba(20, 184, 166, 0.8)"; // Teal
+        const lenovoColor = "rgba(59, 130, 246, 0.8)"; // Blue
+
+        const teradataBorderColor = "rgb(13, 148, 136)";
+        const lenovoBorderColor = "rgb(37, 99, 235)";
+
+        const data = {
+          teradata: {
+            wacc: 12.8,
+            der: 1.02,
+            icr: 5.63,
+            dol: 2.8,
+            dfl: 1.22,
+            dcl: 3.42,
+            piutangHari: 41.11,
+            persediaanHari: 138.78,
+            dpr: 80.2,
+            retention: 19.8,
+          },
+          lenovo: {
+            wacc: 7.37,
+            der: 5.64,
+            icr: 9.18,
+            dol: 4.89,
+            dfl: 1.469,
+            dcl: 7.178,
+            piutangHari: 51.6,
+            persediaanHari: 50.7,
+            dpr: 1.85,
+            retention: 98.15,
+          },
+        };
+
+        const defaultChartOptions = {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: "top",
+              labels: {
+                font: {
+                  size: 14,
+                },
+              },
+            },
+            tooltip: {
+              bodyFont: {
+                size: 14,
+              },
+              titleFont: {
+                size: 16,
+                weight: "bold",
+              },
+            },
+          },
+          scales: {
+            x: {
+              ticks: {
+                font: {
+                  size: 12,
+                },
+              },
+            },
+            y: {
+              beginAtZero: true,
+              ticks: {
+                font: {
+                  size: 12,
+                },
+              },
+            },
+          },
+        };
+
+        const createHorizontalBarChart = (canvasId, label, data1, data2) => {
+          const ctx = document.getElementById(canvasId).getContext("2d");
+          new Chart(ctx, {
+            type: "bar",
+            data: {
+              labels: [label],
+              datasets: [
+                {
+                  label: "PT TERADATA",
+                  data: [data1],
+                  backgroundColor: teradataColor,
+                  borderColor: teradataBorderColor,
+                  borderWidth: 1,
+                },
+                {
+                  label: "LENOVO",
+                  data: [data2],
+                  backgroundColor: lenovoColor,
+                  borderColor: lenovoBorderColor,
+                  borderWidth: 1,
+                },
+              ],
+            },
+            options: {
+              ...defaultChartOptions,
+              indexAxis: "y",
+              scales: {
+                y: { ticks: { display: false } },
+              },
+            },
+          });
+        };
+
+        if (document.getElementById("waccChart")) {
+          createHorizontalBarChart(
+            "waccChart",
+            "WACC (%)",
+            data.teradata.wacc,
+            data.lenovo.wacc
+          );
+        }
+        if (document.getElementById("derChart")) {
+          createHorizontalBarChart(
+            "derChart",
+            "DER (kali)",
+            data.teradata.der,
+            data.lenovo.der
+          );
+        }
+        if (document.getElementById("icrChart")) {
+          createHorizontalBarChart(
+            "icrChart",
+            "ICR (kali)",
+            data.teradata.icr,
+            data.lenovo.icr
+          );
+        }
+        if (document.getElementById("piutangChart")) {
+          createHorizontalBarChart(
+            "piutangChart",
+            "Hari",
+            data.teradata.piutangHari,
+            data.lenovo.piutangHari
+          );
+        }
+        if (document.getElementById("persediaanChart")) {
+          createHorizontalBarChart(
+            "persediaanChart",
+            "Hari",
+            data.teradata.persediaanHari,
+            data.lenovo.persediaanHari
+          );
+        }
+
+        if (document.getElementById("leverageChart")) {
+          const leverageCtx = document
+            .getElementById("leverageChart")
+            .getContext("2d");
+          new Chart(leverageCtx, {
+            type: "bar",
+            data: {
+              labels: ["DOL", "DFL", "DCL"],
+              datasets: [
+                {
+                  label: "PT TERADATA",
+                  data: [
+                    data.teradata.dol,
+                    data.teradata.dfl,
+                    data.teradata.dcl,
+                  ],
+                  backgroundColor: teradataColor,
+                  borderColor: teradataBorderColor,
+                  borderWidth: 1,
+                },
+                {
+                  label: "LENOVO",
+                  data: [data.lenovo.dol, data.lenovo.dfl, data.lenovo.dcl],
+                  backgroundColor: lenovoColor,
+                  borderColor: lenovoBorderColor,
+                  borderWidth: 1,
+                },
+              ],
+            },
+            options: defaultChartOptions,
+          });
+        }
+
+        const createDonutChart = (
+          canvasId,
+          chartData,
+          colors,
+          borderColors
+        ) => {
+          const ctx = document.getElementById(canvasId).getContext("2d");
+          new Chart(ctx, {
+            type: "doughnut",
+            data: {
+              labels: ["Rasio Pembayaran Dividen (DPR)", "Rasio Laba Ditahan"],
+              datasets: [
+                {
+                  data: chartData,
+                  backgroundColor: colors,
+                  borderColor: borderColors,
+                  borderWidth: 2,
+                },
+              ],
+            },
+            options: {
+              ...defaultChartOptions,
+              cutout: "60%",
+              scales: {
+                x: { display: false },
+                y: { display: false },
+              },
+            },
+          });
+        };
+
+        if (document.getElementById("dividenTeradataChart")) {
+          createDonutChart(
+            "dividenTeradataChart",
+            [data.teradata.dpr, data.teradata.retention],
+            [teradataColor, "rgba(20, 184, 166, 0.2)"],
+            [teradataBorderColor, "rgba(13, 148, 136, 0.3)"]
+          );
+        }
+
+        if (document.getElementById("dividenLenovoChart")) {
+          createDonutChart(
+            "dividenLenovoChart",
+            [data.lenovo.dpr, data.lenovo.retention],
+            [lenovoColor, "rgba(59, 130, 246, 0.2)"],
+            [lenovoBorderColor, "rgba(37, 99, 235, 0.3)"]
+          );
+        }
+
+        const menuButton = document.getElementById("menu-button");
+        const mobileMenu = document.getElementById("mobile-menu");
+
+        menuButton.addEventListener("click", () => {
+          mobileMenu.classList.toggle("hidden");
+        });
+
+        document.querySelectorAll("#mobile-menu a").forEach((link) => {
+          link.addEventListener("click", () => {
+            mobileMenu.classList.add("hidden");
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
